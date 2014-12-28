@@ -10,13 +10,13 @@ window.requestAnimFrame =
 
 var settings = {
     'basic': {
-        'emission_rate': 900,
+        'emission_rate': 100,
         'min_life': 0,
-        'life_range': 10,
-        'min_angle': -30,
-        'angle_range': 60,
-        'min_speed': 80,
-        'speed_range': 200,
+        'life_range': 0.2,
+        'min_angle': 0,
+        'angle_range': 360,
+        'min_speed': 20,
+        'speed_range': 90,
         'min_size': 2,
         'size_range': 2,
         'colour': '#82c4f5'
@@ -151,16 +151,29 @@ Emitter.prototype.update = function() {
 var canvas = document.getElementById('c');
 var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.height = window.innerHeight-90;
 
-var emitter = new Emitter(canvas.width -10, canvas.height / 2, settings.basic);
-
+var emitterArray = [];
+var emitter = new Emitter(100, canvas.height / 2, settings.basic);
+emitterArray.push(emitter);
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    emitter.update();
-    emitter.pos.x-=3;
-    if (emitter.pos.x > (canvas.width)) {emitter.pos.x=0};
+    for(var x=0; x<emitterArray.length; x++){emitterArray[x].update()};
+    $("#debugger").text("pos.x="+emitter.pos.x+", pos.y="+emitter.pos.y);
     requestAnimFrame(loop);
 }
+function upq(){
+    emitterArray[emitterArray.length]=new Emitter(canvas.width / 2, canvas.height / 2-200, settings.basic);
+}
+function downq(){
+    emitterArray[emitterArray.length]=new Emitter(canvas.width/2, canvas.height / 2+100, settings.basic);
+}
+
+$("#c").mousedown(function(){
+    $("html").css("background-color","red");
+});
+$("#c").mouseup(function(){
+    $("html").css("background-color","grey");
+});
 
 loop();
