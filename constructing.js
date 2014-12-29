@@ -152,14 +152,14 @@ var canvas = document.getElementById('c');
 var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight-90;
-
+var tpos = { x: 0, y: 0 };
 var emitterArray = [];
 var emitter = new Emitter(100, canvas.height / 2, settings.basic);
 emitterArray.push(emitter);
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     for(var x=0; x<emitterArray.length; x++){emitterArray[x].update()};
-    $("#debugger").text("pos.x="+emitter.pos.x+", pos.y="+emitter.pos.y);
+    $("#debugger").text("mouseX="+tpos.x+", mouseY="+tpos.y);
     requestAnimFrame(loop);
 }
 function upq(){
@@ -169,8 +169,10 @@ function downq(){
     emitterArray[emitterArray.length]=new Emitter(canvas.width/2, canvas.height / 2+100, settings.basic);
 }
 
-$("#c").mousedown(function(){
+$("#c").mousemove(function(e){
     $("html").css("background-color","red");
+    tpos.x=e.pageX;
+    tpos.y=e.pageY;
 });
 $("#c").mouseup(function(){
     $("html").css("background-color","grey");
