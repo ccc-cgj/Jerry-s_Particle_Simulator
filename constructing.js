@@ -65,6 +65,8 @@ var Emitter = function(x, y, settings) {
 
     /* the emitter's particle objects */
     this.particles = [];
+
+    this.bedragged = false;
 };
 
 Emitter.prototype.update = function() {
@@ -152,13 +154,35 @@ var canvas = document.getElementById('c');
 var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight-90;
+canvas.addEventListener('click', function() {
+	var skip_turn = false;
+	for(var x=0; x<emitterArray.length; x++){
+		if (emitterArray[x].bedragged == true)
+		{
+			emitterArray[x].bedragged=false; 
+			skip_turn = true;
+		}
+		if (!skip_turn && (Math.abs(emitterArray[x].pos["x"]-tpos.x) + Math.abs(emitterArray[x].pos["y"]-tpos.y))<20)
+		{
+			emitterArray[x].bedragged = true;
+		}
+	};
+}, false);
 var tpos = { x: 0, y: 0 };
 var emitterArray = [];
 var emitter = new Emitter(100, canvas.height / 2, settings.basic);
 emitterArray.push(emitter);
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for(var x=0; x<emitterArray.length; x++){emitterArray[x].update()};
+    for(var x=0; x<emitterArray.length; x++){
+    	if(emitterArray[x].bedragged == true){
+    		emitterArray[x].pos={x:tpos.x, y:tpos.y};
+    	}
+    	else{
+    		emitterArray[x].pos=emitterArray[x].pos;
+    	}
+    	emitterArray[x].update();
+    };
     $("#debugger").text("mouseX="+tpos.x+", mouseY="+tpos.y);
     requestAnimFrame(loop);
 }
@@ -170,12 +194,9 @@ function downq(){
 }
 
 $("#c").mousemove(function(e){
-    $("html").css("background-color","red");
+    $("html").css("background-color","white");
     tpos.x=e.pageX;
     tpos.y=e.pageY;
-});
-$("#c").mouseup(function(){
-    $("html").css("background-color","grey");
 });
 
 loop();
