@@ -8,18 +8,46 @@ window.requestAnimFrame =
         window.setTimeout(callback, 1000 / 60);
 };
 
+
 var settings = {
-    'basic': {
+    'upper': {
+    	'name':"upper",
         'emission_rate': 100,
         'min_life': 0,
-        'life_range': 0.2,
+        'life_range': 0.3,
+        'min_angle': 0,
+        'angle_range': 180,
+        'min_speed': 20,
+        'speed_range': 90,
+        'min_size': 2,
+        'size_range': 2,
+        'colour': '#82c4f5'
+    },
+    'down': {
+    	'name':"down",
+        'emission_rate': 100,
+        'min_life': 0,
+        'life_range': 0.3,
+        'min_angle': 0,
+        'angle_range': -180,
+        'min_speed': 20,
+        'speed_range': 90,
+        'min_size': 2,
+        'size_range': 2,
+        'colour': '#E61A6B'
+    },
+    'proton': {
+    	'name':"down",
+        'emission_rate': 100,
+        'min_life': 0,
+        'life_range': 0.3,
         'min_angle': 0,
         'angle_range': 360,
         'min_speed': 20,
         'speed_range': 90,
         'min_size': 2,
         'size_range': 2,
-        'colour': '#82c4f5'
+        'colour': '#F76809'
     }
 };
 
@@ -154,23 +182,49 @@ var canvas = document.getElementById('c');
 var ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight-90;
-canvas.addEventListener('click', function() {
+	var sys_array = [];
 	var skip_turn = false;
+canvas.addEventListener('click', function() {
+	skip_turn = false;
+	sys_array = [];
 	for(var x=0; x<emitterArray.length; x++){
 		if (emitterArray[x].bedragged == true)
 		{
-			emitterArray[x].bedragged=false; 
+			emitterArray[x].bedragged=false;
 			skip_turn = true;
 		}
-		if (!skip_turn && (Math.abs(emitterArray[x].pos["x"]-tpos.x) + Math.abs(emitterArray[x].pos["y"]-tpos.y))<20)
+		if (!skip_turn && (Math.abs(emitterArray[x].pos["x"]-tpos.x) + Math.abs(emitterArray[x].pos["y"]-tpos.y))<30)
 		{
 			emitterArray[x].bedragged = true;
+			return;
 		}
 	};
+	for(var x=0; x<emitterArray.length; x++){
+		if ((Math.abs(emitterArray[x].pos["x"]-tpos.x) + Math.abs(emitterArray[x].pos["y"]-tpos.y))<=40)
+		{
+			sys_array.push(x);
+		}
+	};
+	if (sys_array.length >= 3)
+	{
+		var upper_num = 0;
+		var down_num = 0;
+		for(var d=0; d<sys_array.length; d++)
+    	{
+     		if(emitterArray[sys_array[d]].settings.name == "upper"){upper_num+=1;}
+     		else if(emitterArray[sys_array[d]].settings.name == "down"){down_num+=1;}
+     		delete emitterArray[sys_array[d]];
+    	};
+    	emitterArray = emitterArray.filter(function(n){return n != null});
+    	if (upper_num==2 && down_num==1)
+    	{
+    		emitterArray[emitterArray.length]=new Emitter(tpos.x, tpos.y, settings.proton);
+    	}
+	}
 }, false);
 var tpos = { x: 0, y: 0 };
 var emitterArray = [];
-var emitter = new Emitter(100, canvas.height / 2, settings.basic);
+var emitter = new Emitter(100, canvas.height / 2, settings.upper);
 emitterArray.push(emitter);
 function loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -187,10 +241,10 @@ function loop() {
     requestAnimFrame(loop);
 }
 function upq(){
-    emitterArray[emitterArray.length]=new Emitter(canvas.width / 2, canvas.height / 2-200, settings.basic);
+    emitterArray[emitterArray.length]=new Emitter(canvas.width / 2, canvas.height / 2-200, settings.upper);
 }
 function downq(){
-    emitterArray[emitterArray.length]=new Emitter(canvas.width/2, canvas.height / 2+100, settings.basic);
+    emitterArray[emitterArray.length]=new Emitter(canvas.width/2, canvas.height / 2+100, settings.down);
 }
 
 $("#c").mousemove(function(e){
